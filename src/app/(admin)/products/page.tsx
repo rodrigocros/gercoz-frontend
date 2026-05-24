@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { useProducts, useDeleteProduct, useCategories } from '@/hooks/use-products';
+import { useProducts, useDeleteProduct, useCategories, useProduct } from '@/hooks/use-products';
 import type { Product, Category } from '@/hooks/use-products';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -25,8 +25,9 @@ export default function ProductsPage() {
   const { data: products = [], isLoading } = useProducts();
   const { data: categories = [] } = useCategories();
   const deleteProduct = useDeleteProduct();
-  const [editing, setEditing] = useState<Product | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const { data: editingProduct } = useProduct(editingId ?? '');
   const [fichaTecnicaId, setFichaTecnicaId] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>('all');
 
@@ -41,7 +42,7 @@ export default function ProductsPage() {
         <h1 className="text-2xl font-bold">Produtos</h1>
         <Button
           onClick={() => {
-            setEditing(null);
+            setEditingId(null);
             setDialogOpen(true);
           }}
         >
@@ -101,7 +102,7 @@ export default function ProductsPage() {
                     size="sm"
                     variant="outline"
                     onClick={() => {
-                      setEditing(product);
+                      setEditingId(product.id);
                       setDialogOpen(true);
                     }}
                   >
@@ -122,8 +123,12 @@ export default function ProductsPage() {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <ProductForm product={editing} onSuccess={() => setDialogOpen(false)} />
+        <DialogContent className="sm:max-w-3xl">
+          <ProductForm
+            key={editingId ?? 'new'}
+            product={editingId ? (editingProduct as Product ?? null) : null}
+            onSuccess={() => { setDialogOpen(false); setEditingId(null); }}
+          />
         </DialogContent>
       </Dialog>
 

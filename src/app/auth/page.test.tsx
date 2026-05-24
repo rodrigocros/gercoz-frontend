@@ -42,7 +42,7 @@ describe('AuthPage', () => {
     );
   });
 
-  it('redirects to / after successful login', async () => {
+  it('redirects to /modulos after successful login', async () => {
     mockLogin.mockResolvedValueOnce(undefined);
     render(<AuthPage />);
     fireEvent.change(screen.getByLabelText(/email/i), {
@@ -52,7 +52,7 @@ describe('AuthPage', () => {
       target: { value: 'admin123' },
     });
     fireEvent.click(screen.getByRole('button', { name: /entrar/i }));
-    await waitFor(() => expect(mockPush).toHaveBeenCalledWith('/'));
+    await waitFor(() => expect(mockPush).toHaveBeenCalledWith('/modulos'));
   });
 
   it('shows validation error for invalid email', async () => {

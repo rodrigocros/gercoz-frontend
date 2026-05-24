@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import HubPage from './page';
+import ModulosPage from './page';
 import { useAuth } from '@/contexts/auth-context';
 import { useRouter } from 'next/navigation';
 
@@ -19,13 +19,13 @@ function renderWithRole(role: string, name = 'Teste') {
     user: { userId: '1', restaurantId: 'r1', role, name },
     logout: mockLogout,
   });
-  render(<HubPage />);
+  render(<ModulosPage />);
 }
 
-describe('HubPage', () => {
+describe('ModulosPage', () => {
   it('renders nothing when user is null', () => {
     (useAuth as jest.Mock).mockReturnValue({ user: null, logout: mockLogout });
-    const { container } = render(<HubPage />);
+    const { container } = render(<ModulosPage />);
     expect(container).toBeEmptyDOMElement();
   });
 

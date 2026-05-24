@@ -2,7 +2,7 @@
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useIngredients } from '@/hooks/use-ingredients';
 import type { Ingredient } from '@/hooks/use-ingredients';
 import { useCreateProduct, useUpdateProduct, useCategories } from '@/hooks/use-products';
@@ -27,11 +27,11 @@ const recipeItemSchema = z.object({
 
 const schema = z.object({
   name: z.string().min(1, 'Nome obrigatório'),
-  description: z.string().optional(),
-  categoryId: z.string().optional(),
+  description: z.string().optional().transform(v => v || undefined),
+  categoryId: z.string().optional().transform(v => v || undefined),
   salePrice: z.coerce.number().min(0),
   preparationTime: z.coerce.number().min(1).default(15),
-  recipeItems: z.array(recipeItemSchema),
+  recipeItems: z.array(recipeItemSchema).min(1, 'Adicione pelo menos 1 ingrediente à receita'),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -53,6 +53,7 @@ export default function ProductForm({ product, onSuccess }: Props) {
     watch,
     setValue,
     control,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -67,7 +68,23 @@ export default function ProductForm({ product, onSuccess }: Props) {
   });
 
   const { fields, append, remove } = useFieldArray({ control, name: 'recipeItems' });
+
+  useEffect(() => {
+    reset({
+      name: product?.name ?? '',
+      description: product?.description ?? '',
+      categoryId: product?.categoryId ?? '',
+      salePrice: product?.salePrice ?? 0,
+      preparationTime: product?.preparationTime ?? 15,
+      recipeItems: (product?.recipeItems ?? []).map((i) => ({
+        ingredientId: i.ingredientId,
+        quantity: i.quantity,
+        unit: i.unit as 'G' | 'KG' | 'ML' | 'L' | 'UN',
+      })),
+    });
+  }, [product?.id, reset]);
   const watchedItems = watch('recipeItems');
+  const watchedCategoryId = watch('categoryId');
   const watchedSalePrice = watch('salePrice');
 
   const calculatedCost = useMemo(() => {
@@ -114,11 +131,14 @@ export default function ProductForm({ product, onSuccess }: Props) {
         <div>
           <Label>Categoria</Label>
           <Select
-            defaultValue={product?.categoryId ?? ''}
-            onValueChange={(v) => setValue('categoryId', v)}
+            value={watchedCategoryId ?? ''}
+            onValueChange={(v) => setValue('categoryId', v as string)}
           >
-            <SelectTrigger>
-              <SelectValue placeholder="Selecione" />
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Selecione">
+                {watchedCategoryId &&
+                  categories.find((c: Category) => c.id === watchedCategoryId)?.name}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {categories.map((c: Category) => (
@@ -142,7 +162,15 @@ export default function ProductForm({ product, onSuccess }: Props) {
 
       <div className="border rounded p-3 space-y-3">
         <div className="flex justify-between items-center">
-          <h3 className="font-medium text-sm">Receita</h3>
+          <div>
+            <h3 className="font-medium text-sm">Receita</h3>
+            {errors.recipeItems?.root?.message && (
+              <p className="text-red-500 text-xs mt-0.5">{errors.recipeItems.root.message}</p>
+            )}
+            {typeof errors.recipeItems?.message === 'string' && (
+              <p className="text-red-500 text-xs mt-0.5">{errors.recipeItems.message}</p>
+            )}
+          </div>
           <Button
             type="button"
             size="sm"
@@ -158,11 +186,18 @@ export default function ProductForm({ product, onSuccess }: Props) {
             <div>
               <Label className="text-xs">Ingrediente</Label>
               <Select
-                onValueChange={(v) => setValue(`recipeItems.${idx}.ingredientId`, v)}
-                defaultValue={field.ingredientId}
+                value={watchedItems[idx]?.ingredientId ?? ''}
+                onValueChange={(v) => {
+                  setValue(`recipeItems.${idx}.ingredientId`, v as string);
+                  const ing = ingredients.find((i: Ingredient) => i.id === v);
+                  if (ing) setValue(`recipeItems.${idx}.unit`, ing.unit as 'G' | 'KG' | 'ML' | 'L' | 'UN');
+                }}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione" />
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selecione">
+                    {watchedItems[idx]?.ingredientId &&
+                      ingredients.find((i: Ingredient) => i.id === watchedItems[idx].ingredientId)?.name}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {ingredients.map((i: Ingredient) => (
@@ -183,23 +218,13 @@ export default function ProductForm({ product, onSuccess }: Props) {
             </div>
             <div>
               <Label className="text-xs">Und</Label>
-              <Select
-                defaultValue={field.unit}
-                onValueChange={(v) =>
-                  setValue(`recipeItems.${idx}.unit`, v as 'G' | 'KG' | 'ML' | 'L' | 'UN')
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {['G', 'KG', 'ML', 'L', 'UN'].map((u) => (
-                    <SelectItem key={u} value={u}>
-                      {u}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Input
+                type="text"
+                value={watchedItems[idx]?.unit ?? ''}
+                readOnly
+                className="bg-muted cursor-not-allowed text-center"
+                onChange={() => {}}
+              />
             </div>
             <Button
               type="button"

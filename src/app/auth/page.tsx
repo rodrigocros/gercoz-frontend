@@ -29,7 +29,7 @@ export default function AuthPage() {
   const onSubmit = async (data: FormData) => {
     try {
       await login(data.email, data.password);
-      router.push('/');
+      router.push('/modulos');
     } catch {
       setError('root', { message: 'Email ou senha inválidos' });
     }

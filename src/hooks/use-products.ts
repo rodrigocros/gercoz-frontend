@@ -17,7 +17,7 @@ export interface Product {
   costPrice: number;
   preparationTime: number;
   isActive: boolean;
-  recipeItems?: RecipeItem[];
+  recipeItems: RecipeItem[];
 }
 
 export interface Category {
