@@ -20,6 +20,10 @@ const MODULE_CONFIG: Record<string, Module[]> = {
     { title: 'Dashboard', subtitle: 'Análises', icon: '📊', href: '/dashboard' },
     { title: 'Produtos', subtitle: 'Cardápio', icon: '🍽️', href: '/products' },
     { title: 'Ingredientes', subtitle: 'Estoque', icon: '🧂', href: '/ingredients' },
+    { title: 'PDV', subtitle: 'Ponto de venda', icon: '🛒', href: '/pdv' },
+    { title: 'Pedidos', subtitle: 'Em aberto', icon: '📋', href: '/pdv/orders' },
+    { title: 'Cardápio', subtitle: 'Menu digital', icon: '🍕', href: '/menu' },
+    { title: 'KDS', subtitle: 'Cozinha', icon: '👨‍🍳', href: '/kds' },
   ],
   CASHIER: [
     { title: 'PDV', subtitle: 'Ponto de venda', icon: '🛒', href: '/pdv' },
