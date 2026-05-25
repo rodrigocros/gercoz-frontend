@@ -93,6 +93,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const switchEmpresa = () => {
+    const oldRefreshToken = localStorage.getItem('refreshToken');
+    if (oldRefreshToken) api.post('/auth/logout', { token: oldRefreshToken }).catch(() => {});
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     document.cookie = 'accessToken=; path=/; max-age=0';
