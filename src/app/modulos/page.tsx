@@ -36,7 +36,7 @@ const MODULE_CONFIG: Record<string, Module[]> = {
 };
 
 export default function ModulosPage() {
-  const { user, logout } = useAuth();
+  const { user, logout, switchEmpresa } = useAuth();
   const router = useRouter();
 
   if (!user) return null;
@@ -58,12 +58,20 @@ export default function ModulosPage() {
             {ROLE_LABELS[user.role] ?? user.role}
           </span>
         </div>
-        <button
-          onClick={handleLogout}
-          className="text-sm text-gray-500 border border-gray-300 px-3 py-1 rounded hover:bg-gray-50"
-        >
-          Sair
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={switchEmpresa}
+            className="text-sm text-gray-500 border border-gray-300 px-3 py-1 rounded hover:bg-gray-50"
+          >
+            Trocar empresa
+          </button>
+          <button
+            onClick={handleLogout}
+            className="text-sm text-gray-500 border border-gray-300 px-3 py-1 rounded hover:bg-gray-50"
+          >
+            Sair
+          </button>
+        </div>
       </header>
 
       <main className="flex flex-col items-center justify-center min-h-[calc(100vh-65px)] px-6">
