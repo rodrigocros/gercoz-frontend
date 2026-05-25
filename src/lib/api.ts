@@ -35,7 +35,9 @@ api.interceptors.response.use(
         original.headers.Authorization = `Bearer ${data.accessToken}`;
         return api(original);
       } catch {
-        localStorage.clear();
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('partialToken');
         document.cookie = 'accessToken=; path=/; max-age=0';
         document.cookie = 'partialToken=; path=/; max-age=0';
         if (typeof window !== 'undefined') window.location.href = '/auth';

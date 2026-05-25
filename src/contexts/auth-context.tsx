@@ -103,7 +103,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     api.post('/auth/logout', { token: localStorage.getItem('refreshToken') }).catch(() => {});
-    localStorage.clear();
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('partialToken');
     document.cookie = 'accessToken=; path=/; max-age=0';
     document.cookie = 'partialToken=; path=/; max-age=0';
     setUser(null);
