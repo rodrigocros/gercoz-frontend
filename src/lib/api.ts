@@ -31,10 +31,13 @@ api.interceptors.response.use(
         });
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('refreshToken', data.refreshToken);
+        document.cookie = `accessToken=${data.accessToken}; path=/; max-age=900; SameSite=Strict`;
         original.headers.Authorization = `Bearer ${data.accessToken}`;
         return api(original);
       } catch {
         localStorage.clear();
+        document.cookie = 'accessToken=; path=/; max-age=0';
+        document.cookie = 'partialToken=; path=/; max-age=0';
         if (typeof window !== 'undefined') window.location.href = '/auth';
         return Promise.reject(error);
       }
